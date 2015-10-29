@@ -1,0 +1,2 @@
+Generate RSS feeds for one or more podcasts, based upon file extensions, or any other regular expression patterns
+in the media filenames in the working directory.  Simple, one script file.
