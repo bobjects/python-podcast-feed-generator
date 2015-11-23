@@ -10,6 +10,7 @@
 import os
 import re
 import urllib
+from cStringIO import StringIO
 
 
 class Podcast(object):
@@ -18,8 +19,6 @@ class Podcast(object):
 	url = "http://localhost/podcast"
 	mediaFileURLPrefix = "http://localhost/podcast/"
 	mediaFileDirectoryPath = "."
-	feedFilePath = "./feed.xml"
-	# mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
 	mediaFilePathRegexes = [".+mp3$", ".+MP3$", ".+wav$", ".+WAV$", ".+m4a$"]
 
 	@property
@@ -33,7 +32,8 @@ class Podcast(object):
 
 	def generate(self):
 		print "Generating feed for '" + self.description
-		feedfile = open(self.feedFilePath, 'w')
+		# feedfile = open(self.feedFilePath, 'w')
+		feedfile = StringIO()
 		feedfile.write('<?xml version="1.0"?>\n')
 		feedfile.write(' <rss version="2.0">\n')
 		feedfile.write('  <channel>\n')
@@ -61,25 +61,88 @@ class Podcast(object):
 		feedfile.write(' </rss>\n')
 		feedfile.write('')
 		feedfile.write('')
+		answer = feedfile.getvalue()
 		feedfile.close()
 		print "done"
 		print ""
+		return answer
 
-# Define your podcasts here...
-podcast = Podcast()
-podcast.title = "MacBob2 Podcast"
-podcast.description = "Just some random MP3s on MacBob2"
-podcast.url = "http://localhost/podcast"
-podcast.mediaFileURLPrefix = "http://localhost/podcast/"
-podcast.feedFilePath = "./feed.xml"
-podcast.generate()
 
-podcast = Podcast()
-podcast.title = "MacBob2 Video Podcast"
-podcast.description = "Just some random videos on MacBob2"
-podcast.url = "http://localhost/podcast"
-podcast.mediaFileURLPrefix = "http://localhost/podcast/"
-podcast.feedFilePath = "./feedvideo.xml"
-podcast.mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
-podcast.generate()
+class PodcastFeedFile(object):
+	podcast = Podcast()
+	feedFilePath = "./feed.xml"
+
+	@property
+	def title(self):
+		return self.podcast.title
+
+	@title.setter
+	def title(self, aString):
+		self.podcast.title = aString
+
+	@property
+	def description(self):
+		return self.podcast.description
+
+	@description.setter
+	def description(self, aString):
+		self.podcast.description = aString
+
+	@property
+	def url(self):
+		return self.podcast.url
+
+	@url.setter
+	def url(self, aString):
+		self.podcast.url = aString
+
+	@property
+	def mediaFileURLPrefix(self):
+		return self.podcast.mediaFileURLPrefix
+
+	@mediaFileURLPrefix.setter
+	def mediaFileURLPrefix(self, aString):
+		self.podcast.mediaFileURLPrefix = aString
+
+	@property
+	def mediaFileDirectoryPath(self):
+		return self.podcast.mediaFileDirectoryPath
+
+	@mediaFileDirectoryPath.setter
+	def mediaFileDirectoryPath(self, aString):
+		self.podcast.mediaFileDirectoryPath = aString
+
+	@property
+	def mediaFilePathRegexes(self):
+		return self.podcast.mediaFilePathRegexes
+
+	@mediaFilePathRegexes.setter
+	def mediaFilePathRegexes(self, aString):
+		self.podcast.mediaFilePathRegexes = aString
+
+	def generate(self):
+		# TODO: will refactor Podcast generate() method.  For now, simply delegate.
+		feedfile = open(self.feedFilePath, 'w')
+		feedfile.write(self.podcast.generate())
+		feedfile.close()
+
+
+if __name__ == '__main__':
+	# Define your podcasts here...
+	podcastFeedFile = PodcastFeedFile()
+	podcastFeedFile.title = "MacBob2 Podcast"
+	podcastFeedFile.description = "Just some random MP3s on MacBob2"
+	podcastFeedFile.url = "http://localhost/podcast"
+	podcastFeedFile.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcastFeedFile.feedFilePath = "./feed.xml"
+	podcastFeedFile.generate()
+
+	podcastFeedFile = PodcastFeedFile()
+	podcastFeedFile.title = "MacBob2 Video Podcast"
+	podcastFeedFile.description = "Just some random videos on MacBob2"
+	podcastFeedFile.url = "http://localhost/podcast"
+	podcastFeedFile.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcastFeedFile.feedFilePath = "./feedvideo.xml"
+	podcastFeedFile.mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
+	podcastFeedFile.generate()
 
