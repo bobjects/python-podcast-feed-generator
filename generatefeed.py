@@ -33,15 +33,15 @@ class Podcast(object):
 	def generate(self):
 		print "Generating feed for '" + self.description
 		# feedfile = open(self.feedFilePath, 'w')
-		feedfile = StringIO()
-		feedfile.write('<?xml version="1.0"?>\n')
-		feedfile.write(' <rss version="2.0">\n')
-		feedfile.write('  <channel>\n')
-		feedfile.write('   <title>' + self.title + '</title>\n')
-		feedfile.write('   <description>' + self.description + '</description>\n')
-		feedfile.write('   <copyright>Various</copyright>\n')
-		feedfile.write('   <link>' + self.url + '</link>\n')
-		# feedfile.write('   <pubDate>' + time.ctime() + '</pubDate>\n')
+		stringio = StringIO()
+		stringio.write('<?xml version="1.0"?>\n')
+		stringio.write(' <rss version="2.0">\n')
+		stringio.write('  <channel>\n')
+		stringio.write('   <title>' + self.title + '</title>\n')
+		stringio.write('   <description>' + self.description + '</description>\n')
+		stringio.write('   <copyright>Various</copyright>\n')
+		stringio.write('   <link>' + self.url + '</link>\n')
+		# stringio.write('   <pubDate>' + time.ctime() + '</pubDate>\n')
 
 		for filename in self.mediaFilePaths:
 			filenewname = filename.replace("&", "and")  # ampersands screw things up.  Actually mv the media file.
@@ -49,76 +49,30 @@ class Podcast(object):
 				os.rename(filename, filenewname)
 				filename = filenewname
 			print "adding " + filename
-			feedfile.write('   <item>\n')
-			feedfile.write('    <title>' + filename + '</title>\n')
-			feedfile.write('    <description>' + filename + '</description>\n')
-			# feedfile.write('    <pubDate>' + time.ctime() + '</pubDate>\n')
+			stringio.write('   <item>\n')
+			stringio.write('    <title>' + filename + '</title>\n')
+			stringio.write('    <description>' + filename + '</description>\n')
+			# stringio.write('    <pubDate>' + time.ctime() + '</pubDate>\n')
 			# TODO:  Perhaps get the file size?
-			feedfile.write('    <enclosure url="' + self.mediaFileURLPrefix + urllib.quote(filename) + '" length="1000000" type="audio/mpeg"> </enclosure>\n')
-			feedfile.write('   </item>\n')
+			stringio.write('    <enclosure url="' + self.mediaFileURLPrefix + urllib.quote(filename) + '" length="1000000" type="audio/mpeg"> </enclosure>\n')
+			stringio.write('   </item>\n')
 
-		feedfile.write('  </channel>\n')
-		feedfile.write(' </rss>\n')
-		feedfile.write('')
-		feedfile.write('')
-		answer = feedfile.getvalue()
-		feedfile.close()
+		stringio.write('  </channel>\n')
+		stringio.write(' </rss>\n')
+		stringio.write('')
+		stringio.write('')
+		answer = stringio.getvalue()
+		stringio.close()
 		print "done"
 		print ""
 		return answer
 
 
 class PodcastFeedFile(object):
-	podcast = Podcast()
 	feedFilePath = "./feed.xml"
 
-	@property
-	def title(self):
-		return self.podcast.title
-
-	@title.setter
-	def title(self, aString):
-		self.podcast.title = aString
-
-	@property
-	def description(self):
-		return self.podcast.description
-
-	@description.setter
-	def description(self, aString):
-		self.podcast.description = aString
-
-	@property
-	def url(self):
-		return self.podcast.url
-
-	@url.setter
-	def url(self, aString):
-		self.podcast.url = aString
-
-	@property
-	def mediaFileURLPrefix(self):
-		return self.podcast.mediaFileURLPrefix
-
-	@mediaFileURLPrefix.setter
-	def mediaFileURLPrefix(self, aString):
-		self.podcast.mediaFileURLPrefix = aString
-
-	@property
-	def mediaFileDirectoryPath(self):
-		return self.podcast.mediaFileDirectoryPath
-
-	@mediaFileDirectoryPath.setter
-	def mediaFileDirectoryPath(self, aString):
-		self.podcast.mediaFileDirectoryPath = aString
-
-	@property
-	def mediaFilePathRegexes(self):
-		return self.podcast.mediaFilePathRegexes
-
-	@mediaFilePathRegexes.setter
-	def mediaFilePathRegexes(self, aString):
-		self.podcast.mediaFilePathRegexes = aString
+	def __init__(self, aPodcast):
+		self.podcast = aPodcast
 
 	def generate(self):
 		# TODO: will refactor Podcast generate() method.  For now, simply delegate.
@@ -129,20 +83,22 @@ class PodcastFeedFile(object):
 
 if __name__ == '__main__':
 	# Define your podcasts here...
-	podcastFeedFile = PodcastFeedFile()
-	podcastFeedFile.title = "MacBob2 Podcast"
-	podcastFeedFile.description = "Just some random MP3s on MacBob2"
-	podcastFeedFile.url = "http://localhost/podcast"
-	podcastFeedFile.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcast = Podcast()
+	podcast.title = "MacBob2 Podcast"
+	podcast.description = "Just some random MP3s on MacBob2"
+	podcast.url = "http://localhost/podcast"
+	podcast.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcastFeedFile = PodcastFeedFile(podcast)
 	podcastFeedFile.feedFilePath = "./feed.xml"
 	podcastFeedFile.generate()
 
-	podcastFeedFile = PodcastFeedFile()
-	podcastFeedFile.title = "MacBob2 Video Podcast"
-	podcastFeedFile.description = "Just some random videos on MacBob2"
-	podcastFeedFile.url = "http://localhost/podcast"
-	podcastFeedFile.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcast = Podcast()
+	podcast.title = "MacBob2 Video Podcast"
+	podcast.description = "Just some random videos on MacBob2"
+	podcast.url = "http://localhost/podcast"
+	podcast.mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
+	podcast.mediaFileURLPrefix = "http://localhost/podcast/"
+	podcastFeedFile = PodcastFeedFile(podcast)
 	podcastFeedFile.feedFilePath = "./feedvideo.xml"
-	podcastFeedFile.mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
 	podcastFeedFile.generate()
 
