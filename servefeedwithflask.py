@@ -11,7 +11,9 @@ from flask import Flask
 from flask import Response
 from generatefeed import Podcast
 
-app = Flask(__name__)
+mediaFileDirectoryPath = "."
+
+app = Flask(__name__, static_folder=mediaFileDirectoryPath)
 
 
 # define feed functions here.
@@ -21,6 +23,7 @@ def feed():
 	podcast.title = "MacBob2 Podcast"
 	podcast.description = "Just some random MP3s on MacBob2"
 	podcast.url = "http://localhost/podcast"
+	podcast.mediaFileDirectoryPath = mediaFileDirectoryPath
 	podcast.mediaFileURLPrefix = "http://localhost/podcast/"
 	return Response(podcast.generate(), mimetype='application/xml')
 
@@ -31,9 +34,17 @@ def feedvideo():
 	podcast.title = "MacBob2 Video Podcast"
 	podcast.description = "Just some random videos on MacBob2"
 	podcast.url = "http://localhost/podcast"
+	podcast.mediaFileDirectoryPath = mediaFileDirectoryPath
 	podcast.mediaFileURLPrefix = "http://localhost/podcast/"
 	podcast.mediaFilePathRegexes = [".+m4v$", ".+M4V$", ".+mov$", ".+MOV$", ".+mp4$", ".+MP4$"]
 	return Response(podcast.generate(), mimetype='application/xml')
+
+
+# This route is for serving the media files statically.
+@app.route('/podcast/<path:path>')
+def static_proxy(path):
+	# send_static_file will guess the correct MIME type
+	return app.send_static_file(path)
 
 
 if __name__ == '__main__':
